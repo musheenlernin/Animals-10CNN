@@ -1,0 +1,22 @@
+# Conda environment files
+.conda/
+envs/
+conda-meta/
+# Ignore environment.yml lock file
+conda-lock.yml
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# VS Code settings
+.vscode/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs and temporary files
+*.log
+*.tmp
+
+

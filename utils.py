@@ -2,6 +2,7 @@ import torch
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader, random_split, Subset
 import time
+import copy
 
 
 def load_data(data_dir: str, data_transforms: dict, batch_size: int):

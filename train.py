@@ -47,4 +47,4 @@ trained_model = train_model(model, dataloaders, dataset_sizes, criterion, optimi
 torch.save(trained_model.state_dict(), 'best_model.pth')
 
 # Evaluate the model on the validation set
-evaluate_model(trained_model, dataloaders['val'], device)
+evaluate_model(trained_model, dataloaders['val'], device, class_names)

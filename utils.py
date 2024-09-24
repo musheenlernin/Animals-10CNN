@@ -3,6 +3,10 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader, random_split, Subset
 import time
 import copy
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
 
 
 def load_data(data_dir: str, data_transforms: dict, batch_size: int):
@@ -151,7 +155,7 @@ def train_model(model, dataloaders, dataset_sizes, criterion, optimizer, device,
     model.load_state_dict(best_model_wts)
     return model
 
-def evaluate_model(model, dataloader, device):
+def evaluate_model(model, dataloader, device, class_names):
     """
     Evaluate the trained model on the validation set.
     
@@ -166,14 +170,39 @@ def evaluate_model(model, dataloader, device):
     model.eval()
     correct = 0
     total = 0
+    all_preds = []
+    all_labels = []
 
     with torch.no_grad():
         for inputs, labels in dataloader:
             inputs, labels = inputs.to(device), labels.to(device)
             outputs = model(inputs)
-            _, predicted = torch.max(outputs, 1)
+            _, preds = torch.max(outputs, 1)
             total += labels.size(0)
-            correct += (predicted == labels).sum().item()
+            correct += (preds == labels).sum().item()
+
+            all_preds.append(preds.cpu().numpy())
+            all_labels.append(labels.cpu().numpy())
+
+
+    all_preds = np.concatenate(all_preds)
+    all_labels = np.concatenate(all_labels)
+
+    plot_confusion_matrix(all_preds, all_labels, class_names)
 
     accuracy = 100 * correct / total
     print(f'Accuracy on validation set: {accuracy:.2f}%')
+
+
+
+def plot_confusion_matrix(labels, preds, class_names):
+    # Compute confusion matrix
+    cm = confusion_matrix(labels, preds)
+    
+    # Plot confusion matrix
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(cm, annot=True, fmt='g', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.title('Confusion Matrix')
+    plt.show()

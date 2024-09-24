@@ -33,8 +33,6 @@ def load_data(data_dir: str, data_transforms: dict, batch_size: int):
     # Split the val_test dataset into validation and test sets
     train_set, val_set, test_set = random_split(datasets, [train_size, val_size, test_size])
 
-    # SANITY CHECK
-    val_set = train_set = Subset(train_set, range(20))
 
     # Apply custom transforms
 

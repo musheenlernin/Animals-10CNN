@@ -37,6 +37,8 @@ def load_data(data_dir: str, data_transforms: dict, batch_size: int):
     # Split the val_test dataset into validation and test sets
     train_set, val_set, test_set = random_split(datasets, [train_size, val_size, test_size])
 
+    # # SANITY CHECK
+    # val_set = train_set = Subset(train_set, range(96))
 
     # Apply custom transforms
 
@@ -92,9 +94,11 @@ def train_model(model, dataloaders, dataset_sizes, criterion, optimizer, device,
     best_model_wts = copy.deepcopy(model.state_dict())
     # Best val_acc
     best_acc = 0.0
+    # Variation of train and val accuracy with epoch
+    history = {'train_loss': [], 'val_loss': [], 'train_acc': [], 'val_acc': []}
 
     for epoch in range(num_epochs):
-        print('-' * 10)
+        print('-' * 20)
         print(f'Epoch {epoch + 1}/{num_epochs}')
 
         # Start timing the epoch
@@ -114,7 +118,6 @@ def train_model(model, dataloaders, dataset_sizes, criterion, optimizer, device,
             for inputs, labels in dataloaders[phase]:
                 inputs, labels = inputs.to(device), labels.to(device)
                 
-                print('.', end="") # For timing
 
                 # Zero the parameter gradients
                 if phase == 'train': optimizer.zero_grad()
@@ -142,6 +145,14 @@ def train_model(model, dataloaders, dataset_sizes, criterion, optimizer, device,
 
             print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
 
+            # Save history
+            if phase == 'train':
+                history['train_loss'].append(epoch_loss)
+                history['train_acc'].append(epoch_acc.item())
+            else:
+                history['val_loss'].append(epoch_loss)
+                history['val_acc'].append(epoch_acc.item())
+
             # Deep copy the model if the accuracy improves
             if phase == 'val' and epoch_acc > best_acc:
                 best_acc = epoch_acc
@@ -153,7 +164,7 @@ def train_model(model, dataloaders, dataset_sizes, criterion, optimizer, device,
 
     # Load best model weights
     model.load_state_dict(best_model_wts)
-    return model
+    return model, history
 
 def evaluate_model(model, dataloader, device, class_names):
     """
@@ -170,6 +181,7 @@ def evaluate_model(model, dataloader, device, class_names):
     model.eval()
     correct = 0
     total = 0
+    # For confusion matrix
     all_preds = []
     all_labels = []
 
@@ -193,6 +205,37 @@ def evaluate_model(model, dataloader, device, class_names):
     accuracy = 100 * correct / total
     print(f'Accuracy on validation set: {accuracy:.2f}%')
 
+def plot_training_curves(history):
+    """
+    Plots training and validation loss and accuracy curves.
+
+    Args:
+        history: Dictionary containing 'train_loss', 'val_loss', 'train_acc', 'val_acc'.
+
+    Returns:
+        None
+    """
+    # Plot Loss Curves
+    plt.figure(figsize=(12, 4))
+    
+    plt.subplot(1, 2, 1)
+    plt.plot(history['train_loss'], label='Train Loss')
+    plt.plot(history['val_loss'], label='Val Loss')
+    plt.xlabel('Batch')
+    plt.ylabel('Loss')
+    plt.title('Training and Validation Loss')
+    plt.legend()
+
+    # Plot Accuracy Curves
+    plt.subplot(1, 2, 2)
+    plt.plot(history['train_acc'], label='Train Accuracy')
+    plt.plot(history['val_acc'], label='Val Accuracy')
+    plt.xlabel('Batch')
+    plt.ylabel('Accuracy')
+    plt.title('Training and Validation Accuracy')
+    plt.legend()
+
+    plt.show()
 
 
 def plot_confusion_matrix(labels, preds, class_names):

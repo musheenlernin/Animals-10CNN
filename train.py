@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torchvision import transforms
 from model import get_pretrained_model
-from utils import train_model, evaluate_model, load_data
+from utils import train_model, evaluate_model, load_data, plot_training_curves
 
 
 # Data transformations
@@ -41,7 +41,10 @@ optimizer = torch.optim.Adam(model.fc.parameters(), lr=0.01)
 
 
 # Train the model
-trained_model = train_model(model, dataloaders, dataset_sizes, criterion, optimizer, device, num_epochs=10)
+trained_model, history = train_model(model, dataloaders, dataset_sizes, criterion, optimizer, device, num_epochs=30)
+
+# Plot training and validation with time
+plot_training_curves(history)
 
 # Save the best model
 torch.save(trained_model.state_dict(), 'best_model.pth')

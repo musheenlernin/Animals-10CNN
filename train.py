@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
 from torchvision import transforms
 from model import get_pretrained_model
 from utils import train_model, evaluate_model, load_data
@@ -27,8 +26,9 @@ data_transforms = {
 }
 
 # Load dataset
-data_dir = '../data/raw-img/'
-dataloaders, dataset_sizes, class_names = load_data(data_dir, data_transforms)
+data_dir = './data/raw-img/'
+dataloaders, dataset_sizes, class_names = load_data(data_dir, data_transforms, batch_size=32)
+
 
 # Load model, optimizer, and loss function
 

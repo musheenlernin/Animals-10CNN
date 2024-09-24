@@ -20,8 +20,9 @@ def load_data(data_dir: str, data_transforms: dict, batch_size: int):
         class_names (list): List of class names.
     """
     # Load dataset
-    data_dir = '../data/raw-img/' 
     datasets = ImageFolder(root=data_dir) # TODO Labels are in Italian and should be translated
+    # Class names
+    class_names = datasets.classes
 
     # Define sizes for validation and test sets
     train_size = int(0.7 * len(datasets))  # 70% for training
@@ -65,8 +66,6 @@ def load_data(data_dir: str, data_transforms: dict, batch_size: int):
 
     # dataset sizes
     dataset_sizes = {x: len(datasets[x]) for x in ['train', 'val', 'test']}
-    # Class names
-    class_names = datasets.classes
 
     return dataloaders, dataset_sizes, class_names
 
